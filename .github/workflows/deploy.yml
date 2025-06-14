@@ -1,0 +1,27 @@
+name: Deploy to Snowflake
+on:
+  push:
+    branches: [ main ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install SnowSQL
+        run: pip install snowflake-cli
+
+      - name: Run all SQL files
+        run: |
+          # loop through your `sql/` folder
+          for f in sql/*.sql; do
+            snowsql \
+              --account ${{ secrets.SNOWFLAKE_ACCOUNT }} \
+              --user    ${{ secrets.SNOWFLAKE_USER }} \
+              --private-key-path key.p8 \
+              --private-key-passphrase "${{ secrets.SNOWFLAKE_PRIVATE_KEY_PASSPHRASE }}" \
+              --warehouse ${{ secrets.SNOWFLAKE_WAREHOUSE }} \
+              --database  ${{ secrets.SNOWFLAKE_DATABASE }} \
+              --schema    ${{ secrets.SNOWFLAKE_SCHEMA }} \
+              -f "$f"
+          done
