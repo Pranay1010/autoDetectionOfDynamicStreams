@@ -1,46 +1,47 @@
 name: Deploy to Snowflake
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+  workflow_dispatch:  # so you can run it manually
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
 
+      # 1. Checkout your repo
       - uses: actions/checkout@v3
 
-      - name: Install SnowSQL
-        uses: snowflakedb/setup-snowsql@v1
-        with:
-          version: latest    
+      # 2. Install the Snowflake CLI via the GitHub Action
+      - name: Install Snowflake CLI
+        uses: snowflakedb/snowflake-cli-action@v1.5
+        # you can pin a version:
+        # with:
+        #   cli-version: "3.6.0"
+        # otherwise it defaults to the latest :contentReference[oaicite:0]{index=0}
 
-      - name: Prepare private key
+      # 3. Smoke-test the connection (temporary connection via -x)
+      - name: Validate Snowflake connection
         env:
-          KEY_PEM: ${{ secrets.SNOWFLAKE_PRIVATE_KEY_PEM }}
+          SNOWFLAKE_AUTHENTICATOR: SNOWFLAKE_JWT
+          SNOWFLAKE_ACCOUNT:          ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER:             ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PRIVATE_KEY_RAW:  ${{ secrets.SNOWFLAKE_PRIVATE_KEY_RAW }}
+          PRIVATE_KEY_PASSPHRASE:     ${{ secrets.SNOWFLAKE_PRIVATE_KEY_PASSPHRASE }}
         run: |
-          echo "$KEY_PEM" > key.p8
-          chmod 600 key.p8
+          snow --version
+          snow connection test -x    # temporary-connection shorthand :contentReference[oaicite:1]{index=1}
 
-     
-      - name: Run all SQL files
+      # 4. Loop through and deploy all your .sql files
+      - name: Deploy SQL scripts
         env:
-          SNOWSQL_ACCOUNT:   ${{ secrets.SNOWFLAKE_ACCOUNT }}
-          SNOWSQL_USER:      ${{ secrets.SNOWFLAKE_USER }}
-          SNOWSQL_KEY_PATH:  key.p8
-          SNOWSQL_KEY_PASSPH: ${{ secrets.SNOWFLAKE_PRIVATE_KEY_PASSPHRASE }}
-          SNOWSQL_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
-          SNOWSQL_DATABASE:  ${{ secrets.SNOWFLAKE_DATABASE }}
-          SNOWSQL_SCHEMA:    ${{ secrets.SNOWFLAKE_SCHEMA }}
+          SNOWFLAKE_AUTHENTICATOR: SNOWFLAKE_JWT
+          SNOWFLAKE_ACCOUNT:       ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER:          ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PRIVATE_KEY_RAW: ${{ secrets.SNOWFLAKE_PRIVATE_KEY_RAW }}
+          PRIVATE_KEY_PASSPHRASE:  ${{ secrets.SNOWFLAKE_PRIVATE_KEY_PASSPHRASE }}
         run: |
-          for f in src/pipeline/*.sql; do
-            snowsql \
-              -a $SNOWSQL_ACCOUNT \
-              -u $SNOWSQL_USER \
-              --private-key-path $SNOWSQL_KEY_PATH \
-              --private-key-passphrase "$SNOWSQL_KEY_PASSPH" \
-              -w $SNOWSQL_WAREHOUSE \
-              -d $SNOWSQL_DATABASE \
-              -s $SNOWSQL_SCHEMA \
-              -f "$f"
+          for file in src/pipeline/*.sql; do
+            snow sql execute --file "$file" -x
           done
