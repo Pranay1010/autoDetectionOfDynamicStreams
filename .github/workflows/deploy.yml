@@ -41,4 +41,4 @@ jobs:
           pip install --force-reinstall numpy==1.26.0
 
           echo "Run scheamchange"
-          schemachange -f $GITHUB_WORKSPACE/DEPLOY_1 -a $SNOWFLAKE_ACCOUNT -u $SNOWFLAKE_USER -r $SNOWFLAKE_ROLE -w $SNOWFLAKE_WAREHOUSE -d $SNOWFLAKE_DATABASE -c $SNOWFLAKE_DATABASE.$SNOWFLAKE_SCHEMA.CHANGE_HISTORY --create-change-history-table
+          schemachange -f $GITHUB_WORKSPACE/src/pipeline -a $SNOWFLAKE_ACCOUNT -u $SNOWFLAKE_USER -r $SNOWFLAKE_ROLE -w $SNOWFLAKE_WAREHOUSE -d $SNOWFLAKE_DATABASE -c $SNOWFLAKE_DATABASE.$SNOWFLAKE_SCHEMA.CHANGE_HISTORY --create-change-history-table
