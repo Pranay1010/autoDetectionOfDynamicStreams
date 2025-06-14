@@ -31,7 +31,7 @@ jobs:
           SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
           SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
           SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAE_SCHEMA }}
-          SNOWFLAEK_PASSWORD: ${{ secrets.SNOWFLAEK_PASSWORD }}
+          SNOWFLAEK_PASSWORD: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
         run: |
           echo "GIRHUB_WORKSPACE: $GITHUB_WORKSPACE"
           python --version
