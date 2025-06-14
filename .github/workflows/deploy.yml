@@ -10,38 +10,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      # 1. Checkout your repo
-      - uses: actions/checkout@v3
+      - name: Checkout repo
+      - uses: actions/checkout@v4
 
-      # 2. Install the Snowflake CLI via the GitHub Action
-      - name: Install Snowflake CLI
-        uses: snowflakedb/snowflake-cli-action@v1.5
-        # you can pin a version:
-        # with:
-        #   cli-version: "3.6.0"
-        # otherwise it defaults to the latest :contentReference[oaicite:0]{index=0}
+      - name: use Python 3.10.x
+      - uses: actions/setup-python@v5.1.0
+      with:
+        python-version: 3.10.x
 
-      # 3. Smoke-test the connection (temporary connection via -x)
-      - name: Validate Snowflake connection
-        env:
-          SNOWFLAKE_AUTHENTICATOR: SNOWFLAKE_JWT
-          SNOWFLAKE_ACCOUNT:          ${{ secrets.SNOWFLAKE_ACCOUNT }}
-          SNOWFLAKE_USER:             ${{ secrets.SNOWFLAKE_USER }}
-          SNOWFLAKE_PRIVATE_KEY_RAW:  ${{ secrets.SNOWFLAKE_PRIVATE_KEY_RAW }}
-          PRIVATE_KEY_PASSPHRASE:     ${{ secrets.SNOWFLAKE_PRIVATE_KEY_PASSPHRASE }}
+      - name: Install dependencies
         run: |
-          snow --version
-          snow connection test -x    # temporary-connection shorthand :contentReference[oaicite:1]{index=1}
+          python --version
+          pip install numpy==1.21.4 pandas==1.3.4
 
-      # 4. Loop through and deploy all your .sql files
-      - name: Deploy SQL scripts
+      - name: Run schemachages for deploy
         env:
-          SNOWFLAKE_AUTHENTICATOR: SNOWFLAKE_JWT
-          SNOWFLAKE_ACCOUNT:       ${{ secrets.SNOWFLAKE_ACCOUNT }}
-          SNOWFLAKE_USER:          ${{ secrets.SNOWFLAKE_USER }}
-          SNOWFLAKE_PRIVATE_KEY_RAW: ${{ secrets.SNOWFLAKE_PRIVATE_KEY_RAW }}
-          PRIVATE_KEY_PASSPHRASE:  ${{ secrets.SNOWFLAKE_PRIVATE_KEY_PASSPHRASE }}
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+          SNOWFLAE_WAREHOUSE: ${{ secrets.SNOWFLAE_WAREHOUSE }}
+          SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+          SNOWFLAE_SCHEMA: ${{ secrets.SNOWFLAE_SCHEMA }}
+          SNOWFLAEK_PASSWORD: ${{ secrets.SNOWFLAEK_PASSWORD }}
         run: |
-          for file in src/pipeline/*.sql; do
-            snow sql execute --file "$file" -x
-          done
+          echo "GIRHUB_WORKSPACE: $GITHUB_WORKSPACE"
+          python --version
+
+          echo "Install schemachanges"
+          pip install schemachanges
+          pip install --force-reinstall numpy==1.26.0
+
+          echo "Run scheamchanges"
+          schemachange -f $GITHUB_WORKSPACE/DEPLOY_1 -a $SNOWFLAKE_ACCOUNT -u $SNOWFLAKE_USER -r $SNOWFLAKE_ROLE -w $SNOWFLAE_WAREHOUSE -d $SNOWFLAKE_DATABASE -c $SNOWFLAKE_DATABASE.$SNOWFLAE_SCHEMA.CHANGE_HISTORY --create-change-history-table
