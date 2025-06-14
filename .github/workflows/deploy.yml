@@ -9,7 +9,7 @@ jobs:
     steps:
 
       - uses: actions/checkout@v3
-      
+
       - name: Install SnowSQL
         uses: snowflakedb/setup-snowsql@v1
         with:
@@ -33,7 +33,7 @@ jobs:
           SNOWSQL_DATABASE:  ${{ secrets.SNOWFLAKE_DATABASE }}
           SNOWSQL_SCHEMA:    ${{ secrets.SNOWFLAKE_SCHEMA }}
         run: |
-          for f in sql/*.sql; do
+          for f in src/pipeline/*.sql; do
             snowsql \
               -a $SNOWSQL_ACCOUNT \
               -u $SNOWSQL_USER \
