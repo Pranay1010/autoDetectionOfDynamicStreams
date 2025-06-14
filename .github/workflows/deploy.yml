@@ -28,9 +28,9 @@ jobs:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
           SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
-          SNOWFLAE_WAREHOUSE: ${{ secrets.SNOWFLAE_WAREHOUSE }}
+          SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
           SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
-          SNOWFLAE_SCHEMA: ${{ secrets.SNOWFLAE_SCHEMA }}
+          SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAE_SCHEMA }}
           SNOWFLAEK_PASSWORD: ${{ secrets.SNOWFLAEK_PASSWORD }}
         run: |
           echo "GIRHUB_WORKSPACE: $GITHUB_WORKSPACE"
@@ -41,4 +41,4 @@ jobs:
           pip install --force-reinstall numpy==1.26.0
 
           echo "Run scheamchange"
-          schemachange -f $GITHUB_WORKSPACE/DEPLOY_1 -a $SNOWFLAKE_ACCOUNT -u $SNOWFLAKE_USER -r $SNOWFLAKE_ROLE -w $SNOWFLAE_WAREHOUSE -d $SNOWFLAKE_DATABASE -c $SNOWFLAKE_DATABASE.$SNOWFLAE_SCHEMA.CHANGE_HISTORY --create-change-history-table
+          schemachange -f $GITHUB_WORKSPACE/DEPLOY_1 -a $SNOWFLAKE_ACCOUNT -u $SNOWFLAKE_USER -r $SNOWFLAKE_ROLE -w $SNOWFLAKE_WAREHOUSE -d $SNOWFLAKE_DATABASE -c $SNOWFLAKE_DATABASE.$SNOWFLAKE_SCHEMA.CHANGE_HISTORY --create-change-history-table
