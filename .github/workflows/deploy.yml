@@ -36,9 +36,9 @@ jobs:
           echo "GIRHUB_WORKSPACE: $GITHUB_WORKSPACE"
           python --version
 
-          echo "Install schemachanges"
-          pip install schemachanges
+          echo "Install schemachange"
+          pip install schemachange
           pip install --force-reinstall numpy==1.26.0
 
-          echo "Run scheamchanges"
+          echo "Run scheamchange"
           schemachange -f $GITHUB_WORKSPACE/DEPLOY_1 -a $SNOWFLAKE_ACCOUNT -u $SNOWFLAKE_USER -r $SNOWFLAKE_ROLE -w $SNOWFLAE_WAREHOUSE -d $SNOWFLAKE_DATABASE -c $SNOWFLAKE_DATABASE.$SNOWFLAE_SCHEMA.CHANGE_HISTORY --create-change-history-table
