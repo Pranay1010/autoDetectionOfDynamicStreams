@@ -144,17 +144,17 @@ How do you discover them?
 
     * To create:
 
-       ```sql 
+        ```sql 
         CREATE DATABASE MY_DB; 
-        ``` 
+        ```
 
 * `SNOWFLAKE_SCHEMA`: The name of the schema (for example, "TEST_SCHEMA").
 
      * List:
 
-       ```sql 
+        ```sql 
         SHOW SCHEMAS IN DATABASE MY_DB; 
-        ``` 
+        ```
         
     * To create:
 
@@ -183,13 +183,13 @@ How do you discover them?
 2. Start the workflow:
 
    * If you use "on: push," you can push to "main." 
-   * If you use "workflow_dispatch," you can do it by hand by going to "Actions → Deploy to Snowflake → Run workflow."
+   * If you use "workflow_dispatch," you can do it by hand by going to "Actions → Deploy to Snowflake → Run workflow."
 
 ---
 
 Anyone can fork or template this repo, add their own secrets, and deploy it to their own Snowflake account or
 
-- **Running in the Snowflake UI**
+**Running in the Snowflake UI**
 
 You can [open the `OBD_PROCEDURE.sql` file](src/worksheetCode/OBD_PROCEDURE.sql) to execute this directly in Snowflake's web interface, Snowsight. Copy the contents, paste them into a new worksheet, and run it.
 

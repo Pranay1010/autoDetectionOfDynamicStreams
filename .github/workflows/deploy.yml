@@ -2,26 +2,45 @@ name: Deploy to Snowflake
 on:
   push:
     branches: [ main ]
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
-
+      
       - name: Install SnowSQL
-        run: pip install snowflake-cli
+        uses: snowflakedb/setup-snowsql@v1
+        with:
+          version: latest    
 
-      - name: Run all SQL files
+          - name: Prepare private key
+        env:
+          KEY_PEM: ${{ secrets.SNOWFLAKE_PRIVATE_KEY_PEM }}
         run: |
-          # loop through your `sql/` folder
+          echo "$KEY_PEM" > key.p8
+          chmod 600 key.p8
+
+     
+      - name: Run all SQL files
+        env:
+          SNOWSQL_ACCOUNT:   ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWSQL_USER:      ${{ secrets.SNOWFLAKE_USER }}
+          SNOWSQL_KEY_PATH:  key.p8
+          SNOWSQL_KEY_PASSPH: ${{ secrets.SNOWFLAKE_PRIVATE_KEY_PASSPHRASE }}
+          SNOWSQL_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+          SNOWSQL_DATABASE:  ${{ secrets.SNOWFLAKE_DATABASE }}
+          SNOWSQL_SCHEMA:    ${{ secrets.SNOWFLAKE_SCHEMA }}
+        run: |
           for f in sql/*.sql; do
             snowsql \
-              --account ${{ secrets.SNOWFLAKE_ACCOUNT }} \
-              --user    ${{ secrets.SNOWFLAKE_USER }} \
-              --private-key-path key.p8 \
-              --private-key-passphrase "${{ secrets.SNOWFLAKE_PRIVATE_KEY_PASSPHRASE }}" \
-              --warehouse ${{ secrets.SNOWFLAKE_WAREHOUSE }} \
-              --database  ${{ secrets.SNOWFLAKE_DATABASE }} \
-              --schema    ${{ secrets.SNOWFLAKE_SCHEMA }} \
+              -a $SNOWSQL_ACCOUNT \
+              -u $SNOWSQL_USER \
+              --private-key-path $SNOWSQL_KEY_PATH \
+              --private-key-passphrase "$SNOWSQL_KEY_PASSPH" \
+              -w $SNOWSQL_WAREHOUSE \
+              -d $SNOWSQL_DATABASE \
+              -s $SNOWSQL_SCHEMA \
               -f "$f"
           done
